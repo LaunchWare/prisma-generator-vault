@@ -1,0 +1,3 @@
+{
+  "extends": ["../../.eslintrc.json", "@launchware/eslint-config-node"]
+}

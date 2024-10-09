@@ -1,0 +1,19 @@
+{
+  "name": "@prisma-vault/prisma-vault",
+  "version": "0.0.1",
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "prisma": "^5.20.0"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "typings": "./dist/index.d.ts",
+  "private": true,
+  "nx": {
+    "name": "prisma-vault"
+  },
+  "devDependencies": {
+    "@launchware/eslint-config-node": "^0.0.7",
+    "sqlite3": "^5.1.7"
+  }
+}
