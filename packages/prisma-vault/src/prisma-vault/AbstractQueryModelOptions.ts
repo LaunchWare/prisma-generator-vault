@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+type RecordType = Record<string, any>
 export interface AbstractQueryModelOptions {
   QueryModel?: any
-  CreateInput?: Record<string, any>
-  UpdateInput?: Record<string, any>
-  WhereInput?: Record<string, any>
+  CreateInput?: RecordType
+  UpdateInput?: RecordType
+  WhereInput?: RecordType
   WhereUniqueInput?: Record<any, any>
-  OrderByInput?: Record<string, any>
-  IncludeInput?: Record<string, any> | null
-  SelectInput?: Record<string, any> | null
-  InstancePayload: Record<string, any>
+  OrderByInput?: RecordType
+  IncludeInput?: RecordType | null
+  SelectInput?: RecordType | null
+  FindFirstResult: RecordType | null
+  FindManyResult: RecordType[]
+  CreateResult: RecordType
+  UpdateResult: RecordType
+  UpsertResult: RecordType
+  DeleteResult: RecordType
 }

@@ -8,6 +8,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator prismaVault {
+  provider = "node --enable-source-maps ./dist/index.js"
+}
+
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique

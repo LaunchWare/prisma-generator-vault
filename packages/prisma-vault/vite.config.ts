@@ -1,20 +1,24 @@
 /// <reference types='vitest' />
-import { defineConfig } from 'vite';
-import dts from 'vite-plugin-dts';
-import * as path from 'path';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+import { defineConfig } from "vite"
+import dts from "vite-plugin-dts"
+import * as path from "path"
+import { nxViteTsPaths } from "@nx/vite/plugins/nx-tsconfig-paths.plugin"
+import { nxCopyAssetsPlugin } from "@nx/vite/plugins/nx-copy-assets.plugin"
+import { externalizeDeps } from "vite-plugin-externalize-deps"
+import commonjsExternals from 'vite-plugin-commonjs-externals';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/prisma-vault',
+  cacheDir: "../../node_modules/.vite/packages/prisma-vault",
   plugins: [
     nxViteTsPaths(),
-    nxCopyAssetsPlugin(['*.md']),
+    nxCopyAssetsPlugin(["*.md"]),
     dts({
-      entryRoot: 'src',
-      tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+      entryRoot: "src",
+      tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
     }),
+    externalizeDeps(),
+    commonjsExternals({ externals: ["fs"]})
   ],
   // Uncomment this if you are using workers.
   // worker: {
@@ -23,7 +27,8 @@ export default defineConfig({
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
-    outDir: './dist',
+    outDir: "./dist",
+    sourcemap: true,
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {
@@ -31,27 +36,27 @@ export default defineConfig({
     },
     lib: {
       // Could also be a dictionary or array of multiple entry points.
-      entry: 'src/index.ts',
-      name: 'prisma-vault',
-      fileName: 'index',
+      entry: "src/index.ts",
+      name: "prisma-vault",
+      fileName: "index",
       // Change this to the formats you want to support.
       // Don't forget to update your package.json as well.
-      formats: ['es', 'cjs'],
+      formats: ["es", "cjs"],
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: [],
+      external: ["@prisma/generator-helper"],
     },
   },
   test: {
     watch: false,
     globals: true,
-    environment: 'node',
-    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    reporters: ['default'],
+    environment: "node",
+    include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    reporters: ["default"],
     coverage: {
-      reportsDirectory: '../../coverage/packages/prisma-vault',
-      provider: 'v8',
+      reportsDirectory: "../../coverage/packages/prisma-vault",
+      provider: "v8",
     },
   },
-});
+})

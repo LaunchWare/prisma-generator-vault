@@ -2,18 +2,6 @@ import { AbstractQueryModelOptions } from "../AbstractQueryModelOptions.js"
 import { BaseRepository } from "../BaseRepository.js"
 import { Prisma, PrismaClient } from "@prisma/client"
 
-export interface BaseQueryModelOptions<TQueryModel> extends AbstractQueryModelOptions {
-  QueryModel: TQueryModel
-  CreateInput?: Omit<Prisma.Args<TQueryModel, "create">["data"], "id">
-  UpdateInput?: Prisma.Args<TQueryModel, "update">["data"]
-  WhereInput?: Prisma.Args<TQueryModel, "findMany">["where"]
-  WhereUniqueInput?: Prisma.Args<TQueryModel, "update">["where"]
-  OrderByInput?: Prisma.Args<TQueryModel, "findMany">["orderBy"]
-  IncludeInput?: Prisma.Args<TQueryModel, "findMany">["include"] | null
-  SelectInput?: Prisma.Args<TQueryModel, "findMany">["select"] | null
-  InstancePayload: Prisma.Payload<TQueryModel, "findFirst">
-}
-
 type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>
 class UserRepository extends BaseRepository<UserQueryModelOptions> {}
 
@@ -40,7 +28,7 @@ describe("Base Repository", () => {
   it("deletes a record", async () => {
     const user = await createUser()
 
-    userRepository.delete(user.id)
+    userRepository.deleteById(user.id)
 
     const foundUser = await userRepository.findById({ id: user.id })
     expect(foundUser).toBe(null)
@@ -56,7 +44,7 @@ describe("Base Repository", () => {
 
   it("updates a record", async () => {
     const user = await createUser()
-    await userRepository.update(user.id, {
+    await userRepository.updateById(user.id, {
       firstName: "Jim",
     })
 

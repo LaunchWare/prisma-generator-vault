@@ -8,7 +8,10 @@
       "vite/client",
       "node",
       "vitest"
-    ]
+    ],
+    "paths": {
+      "prisma-vault": ["./src/index.ts"]
+    }
   },
   "include": [
     "vite.config.ts",

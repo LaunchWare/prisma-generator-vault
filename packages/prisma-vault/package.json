@@ -2,8 +2,11 @@
   "name": "@prisma-vault/prisma-vault",
   "version": "0.0.1",
   "dependencies": {
-    "@prisma/client": "^5.20.0",
-    "prisma": "^5.20.0"
+    "@prisma/client": "5.x",
+    "@prisma/generator-helper": "5.x",
+    "@prisma/internals": "^5.20.0",
+    "prisma": "5.x",
+    "zod": "^3.23.8"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,6 +17,8 @@
   },
   "devDependencies": {
     "@launchware/eslint-config-node": "^0.0.7",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "vite-plugin-commonjs-externals": "^0.1.4",
+    "vite-plugin-externalize-deps": "^0.8.0"
   }
 }

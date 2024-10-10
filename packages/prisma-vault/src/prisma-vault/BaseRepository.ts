@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Result } from "@prisma/client/runtime/library"
 import type { AbstractQueryModelOptions } from "./AbstractQueryModelOptions.js"
 import type { HasManyResult } from "./HasManyResult.js"
 import type { IdType } from "./IdType.js"
@@ -12,7 +11,7 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
     this.model = model
   }
 
-  async findById<TFindOptions>({
+  async findById({
     id,
     include,
     select,
@@ -20,31 +19,33 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
     id: IdType
     include?: ModelOptions["IncludeInput"]
     select?: ModelOptions["SelectInput"]
-  } & TFindOptions): Promise<Result<ModelOptions["QueryModel"], TFindOptions, "findFirst">> {
+  }): Promise<ModelOptions["FindFirstResult"]> {
     return this.model
       .findFirst({ where: { id }, include, select } as {
         where: ModelOptions["WhereInput"]
         include: ModelOptions["IncludeInput"]
         select: ModelOptions["SelectInput"]
       })
-      .then((result: Result<ModelOptions["QueryModel"], TFindOptions, "findFirst">) => result)
+      .then((result: ModelOptions["FindFirstResult"]) => result)
   }
 
-  async findFirst<TFindOptions>({
+  async findFirst({
     where,
     include,
     select,
+    orderBy,
   }: {
     where?: ModelOptions["WhereInput"]
     include?: ModelOptions["IncludeInput"]
     select?: ModelOptions["SelectInput"]
-  } & TFindOptions): Promise<Result<ModelOptions["QueryModel"], TFindOptions, "findFirst">> {
+    orderBy?: ModelOptions["OrderByInput"]
+  }): Promise<ModelOptions["FindFirstResult"]> {
     return this.model
-      .findFirst({ where, include, select })
-      .then((result: Result<ModelOptions["QueryModel"], TFindOptions, "findFirst">) => result)
+      .findFirst({ where, include, select, orderBy })
+      .then((result: ModelOptions["FindFirstResult"]) => result)
   }
 
-  async findMany<TFindOptions>({
+  async findMany({
     orderBy,
     where,
     skip,
@@ -62,10 +63,10 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
     include?: ModelOptions["IncludeInput"]
     select?: ModelOptions["SelectInput"]
     checkForNextPage?: boolean
-  } & TFindOptions): Promise<HasManyResult<Result<ModelOptions["QueryModel"], TFindOptions, "findMany">>> {
+  }): Promise<HasManyResult<ModelOptions["FindManyResult"]>> {
     const nodes = await this.model
       .findMany({ orderBy, where, skip, take, cursor, include, select })
-      .then((result: Result<ModelOptions["QueryModel"], TFindOptions, "findMany">) => result)
+      .then((result: ModelOptions["FindManyResult"]) => result)
 
     let pageInfo: PageInfo = { hasNextPage: false }
     if (checkForNextPage) {
@@ -83,7 +84,7 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
     return { nodes, pageInfo }
   }
 
-  async hasNextPage<TFindOptions>({
+  async hasNextPage({
     orderBy,
     where,
     cursor,
@@ -95,48 +96,45 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
     cursor?: ModelOptions["WhereUniqueInput"]
     include?: ModelOptions["IncludeInput"]
     select?: ModelOptions["SelectInput"]
-  } & TFindOptions): Promise<boolean> {
+  } ): Promise<boolean> {
     const result =
       (await this.model
         .findMany({ orderBy, where, take: 1, skip: 1, cursor, include, select })
-        .then((result: HasManyResult<Result<ModelOptions["QueryModel"], TFindOptions, "findMany">>) => result)) || []
+        .then((result: HasManyResult<ModelOptions["FindManyResult"]>) => result)) || []
     return result && result.length > 0
   }
 
   async create(
     args: ModelOptions["CreateInput"]
-  ): Promise<Result<ModelOptions["QueryModel"], Record<string, string>, "create">> {
+  ): Promise<ModelOptions["CreateResult"]> {
     let createArgs = args
-    if (!args?.id && this.model.fields.id !== undefined) {
-      createArgs = {
-        ...createArgs,
-      }
-    }
     return this.model
       .create({ data: createArgs })
-      .then((result: Result<ModelOptions["QueryModel"], unknown, "create">) => result)
+      .then((result: ModelOptions["CreateResult"]) => result)
   }
 
-  async delete(id: IdType) {
+  async deleteById(id: IdType) {
     return this.model
       .delete({ where: { id } })
-      .then((result: Result<ModelOptions["QueryModel"], unknown, "delete">) => result)
+      .then((result: ModelOptions["DeleteResult"]) => result)
   }
 
-  async update(
+  async updateById(
     id: IdType,
     data: Omit<ModelOptions["UpdateInput"], "id">
-  ): Promise<Result<ModelOptions["QueryModel"], never, "update">> {
+  ): Promise<ModelOptions["UpdateResult"]> {
     return this.model
       .update({ where: { id: id }, data })
-      .then((result: Result<ModelOptions["QueryModel"], unknown, "update">) => result)
+      .then((result: ModelOptions["UpdateResult"]) => result)
   }
 
   async upsert(
     where: ModelOptions["WhereInput"],
     update: ModelOptions["UpdateInput"],
     create: ModelOptions["CreateInput"]
-  ) {
-    return this.model.upsert({ where, update, create })
+  ): Promise<ModelOptions["UpsertResult"]> {
+    return this.model
+      .upsert({ where, update, create })
+      .then((result: ModelOptions["UpsertResult"]) => result)
   }
 }
