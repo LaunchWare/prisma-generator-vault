@@ -1,5 +1,5 @@
-import { AbstractQueryModelOptions } from "../AbstractQueryModelOptions.js"
 import { BaseRepository } from "../BaseRepository.js"
+import { BaseQueryModelOptions } from "../../../test/prisma/prisma-vault/BaseQueryModelOptions.js"
 import { Prisma, PrismaClient } from "@prisma/client"
 
 type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>

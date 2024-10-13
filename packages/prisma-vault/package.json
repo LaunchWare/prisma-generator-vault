@@ -8,13 +8,8 @@
     "prisma": "5.x",
     "zod": "^3.23.8"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "typings": "./dist/index.d.ts",
+  "typings": "./dist/packages/prisma-vault/index.d.ts",
   "private": true,
-  "nx": {
-    "name": "prisma-vault"
-  },
   "devDependencies": {
     "@launchware/eslint-config-node": "^0.0.7",
     "sqlite3": "^5.1.7",

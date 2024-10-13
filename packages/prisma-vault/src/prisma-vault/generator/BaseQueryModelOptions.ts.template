@@ -1,4 +1,4 @@
-import type { TQueryModel } from "prisma-vault"
+import type { AbstractQueryModelOptions } from "prisma-vault"
 
 export interface BaseQueryModelOptions<TQueryModel> extends AbstractQueryModelOptions {
   QueryModel: TQueryModel

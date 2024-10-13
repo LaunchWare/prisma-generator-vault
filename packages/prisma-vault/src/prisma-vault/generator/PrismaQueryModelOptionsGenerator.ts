@@ -1,6 +1,7 @@
 import { configurationSchema } from "./Configuration.js"
 import { GeneratorConfig, GeneratorOptions, parseEnvValue } from "./GeneratorHelpers.js"
 import fs from "fs"
+import { join } from "path"
 
 const targetProvider = "prisma-client-js"
 
@@ -10,19 +11,19 @@ export async function generate(options: GeneratorOptions) {
     throw new Error(`${targetProvider} is a required generator for this library`)
   }
   const importPath = resolveConfiguredImportPath(options.generator, clientGenerator)
-  let interfaceFileContents = `import { Args } from "${importPath}"\n`
-  interfaceFileContents += fs.readFileSync("./BaseQueryModelOptions.ts.template")
+  let interfaceFileContents = `import Prisma from "${importPath}"\n`
+  interfaceFileContents += fs.readFileSync(join(__dirname, "./BaseQueryModelOptions.ts.template"))
   let outputFilePath: string | undefined
-  if(!options.generator?.output?.value) {
+  if (!options.generator?.output?.value) {
     throw new Error("No output was specified for prisma-vault")
   }
-  if(typeof options.generator?.output?.value === "string") {
+  if (typeof options.generator?.output?.value === "string") {
     outputFilePath = options.generator.output.value
-  }
-  else {
+  } else {
     outputFilePath = parseEnvValue(options.generator.output)
   }
-  fs.writeFileSync(outputFilePath, interfaceFileContents)
+  fs.mkdirSync(outputFilePath, { recursive: true })
+  fs.writeFileSync(join(outputFilePath, "BaseQueryModelOptions.ts"), interfaceFileContents)
 }
 
 function resolveConfiguredImportPath(generator: GeneratorConfig, clientGenerator: GeneratorConfig) {

@@ -42,4 +42,4 @@ Thumbs.db
 .nx/workspace-data
 
 /packages/**/test/prisma/db/**/*.*
-
+/packages/**/test/prisma/prisma-vault/**/*.*

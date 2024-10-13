@@ -1,3 +1,5 @@
 export type { GeneratorOptions, GeneratorConfig } from "@prisma/generator-helper"
 export { generatorHandler } from "@prisma/generator-helper"
-export { parseEnvValue } from "@prisma/internals"
+import internals from "@prisma/internals"
+
+export const { parseEnvValue } = internals
