@@ -1,5 +1,5 @@
 {
-  "name": "@prisma-vault/prisma-vault",
+  "name": "prisma-generator-vault",
   "version": "0.0.1",
   "dependencies": {
     "@prisma/client": "5.x",
@@ -8,7 +8,7 @@
     "prisma": "5.x",
     "zod": "^3.23.8"
   },
-  "typings": "./dist/packages/prisma-vault/index.d.ts",
+  "typings": "./dist/packages/prisma-generator-vault/index.d.ts",
   "private": true,
   "devDependencies": {
     "@launchware/eslint-config-node": "^0.0.7",

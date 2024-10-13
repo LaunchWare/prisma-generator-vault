@@ -2,5 +2,5 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "references": [{ "path": "./packages/prisma-vault" }]
+  "references": [{ "path": "./packages/prisma-generator-vault" }]
 }
