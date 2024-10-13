@@ -42,6 +42,14 @@ describe("Base Repository", () => {
     expect(foundUser?.id).toEqual(user.id)
   })
 
+  it("finds first on the basis of a constraint", async () => {
+    const user = await createUser()
+
+    const foundUser = await userRepository.findFirst({ where: { email: user.email } })
+    expect(foundUser).not.toBeNull()
+    expect(foundUser?.id).toEqual(user.id)
+  })
+
   it("updates a record", async () => {
     const user = await createUser()
     await userRepository.updateById(user.id, {
@@ -50,5 +58,63 @@ describe("Base Repository", () => {
 
     const foundUser = await userRepository.findById({ id: user.id })
     expect(foundUser?.firstName).toEqual("Jim")
+  })
+
+  it("paginates", async () => {
+    await createUser()
+    const secondUser = await userRepository.create({
+      firstName: "John",
+      lastName: "Snow",
+      email: "john2@example.com",
+    })
+
+    await userRepository.create({
+      firstName: "Ariya",
+      lastName: "Stark",
+      email: "ariya@example.com",
+    })
+
+    const constrainedSet = await userRepository.findMany({ take: 2 })
+    expect(constrainedSet.nodes.length).toEqual(2)
+    expect(constrainedSet.pageInfo?.endCursor[0].value).toEqual(secondUser.id)
+  })
+
+  it("upserts updates", async () => {
+    const user = await createUser()
+    const updatedUser = await userRepository.upsert(
+      { id: user.id },
+      { lastName: "Snow" },
+      { email: "johnSnow@example.com", firstName: "John", lastName: "Snow" }
+    )
+    expect(updatedUser.id).toEqual(user.id)
+    expect(updatedUser.lastName).toEqual("Snow")
+  })
+
+  it("upserts inserts", async () => {
+    const updatedUser = await userRepository.upsert(
+      { email: "xzafasdfaqs@example.com" },
+      { lastName: "Snow" },
+      { email: "johnSnow@example.com", firstName: "John", lastName: "Snow" }
+    )
+    expect(updatedUser.id).toBeDefined()
+    expect(updatedUser.lastName).toEqual("Snow")
+  })
+
+  it("finds many records", async () => {
+    await createUser()
+    await userRepository.create({
+      firstName: "John",
+      lastName: "Snow",
+      email: "john2@example.com",
+    })
+
+    await userRepository.create({
+      firstName: "Ariya",
+      lastName: "Stark",
+      email: "ariya@example.com",
+    })
+
+    const results = await userRepository.findMany({})
+    expect(results.nodes.length).toEqual(3)
   })
 })

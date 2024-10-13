@@ -131,7 +131,7 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
   async upsert(
     where: ModelOptions["WhereInput"],
     update: ModelOptions["UpdateInput"],
-    create: ModelOptions["CreateInput"]
+    create: ModelOptions["CreateInput"],
   ): Promise<ModelOptions["UpsertResult"]> {
     return this.model
       .upsert({ where, update, create })
