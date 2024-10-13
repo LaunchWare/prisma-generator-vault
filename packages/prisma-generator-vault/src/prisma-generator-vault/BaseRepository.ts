@@ -107,9 +107,8 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
   async create(
     args: ModelOptions["CreateInput"]
   ): Promise<ModelOptions["CreateResult"]> {
-    let createArgs = args
     return this.model
-      .create({ data: createArgs })
+      .create({ data: args })
       .then((result: ModelOptions["CreateResult"]) => result)
   }
 
