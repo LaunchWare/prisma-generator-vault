@@ -1,4 +1,5 @@
 /// <reference types='vitest' />
+import { join } from "path"
 import { defineConfig } from "vite"
 
 export default defineConfig({
@@ -10,6 +11,9 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     reporters: ["default"],
+    alias: {
+      "prisma-generator-vault": join(__dirname, "src/index.ts"),
+    },
     maxConcurrency: 1,
     coverage: {
       reportsDirectory: "../../coverage/packages/prisma-vault",

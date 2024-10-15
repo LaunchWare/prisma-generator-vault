@@ -1,7 +1,11 @@
 import { configurationSchema } from "./Configuration.js"
 import { GeneratorConfig, GeneratorOptions, parseEnvValue } from "./GeneratorHelpers.js"
-import fs from "fs"
-import { join } from "path"
+import { PrismaClientForVaultGeneration } from "./PrismaClientForVaultGeneration.js"
+import { EnvValue } from "@prisma/generator-helper"
+import { BaseQueryModelOptionsGeneration } from "./BaseQueryModelGeneration.js"
+import { PrismaVaultRepositoryGeneration } from "./PrismaVaultRepositoryGeneration.js"
+import { IndexGeneration } from "./IndexGeneration.js"
+import { rmSync } from "fs"
 
 const targetProvider = "prisma-client-js"
 
@@ -11,19 +15,41 @@ export async function generate(options: GeneratorOptions) {
     throw new Error(`${targetProvider} is a required generator for this library`)
   }
   const importPath = resolveConfiguredImportPath(options.generator, clientGenerator)
-  let interfaceFileContents = `import Prisma from "${importPath}"\n`
-  interfaceFileContents += fs.readFileSync(join(__dirname, "./BaseQueryModelOptions.ts.template"))
-  let outputFilePath: string | undefined
-  if (!options.generator?.output?.value) {
+  const outputPath = resolveOutputPath(options.generator?.output)
+  rmSync(outputPath, { recursive: true })
+  const generators = [
+    new PrismaClientForVaultGeneration({ outputPath, importPath }),
+    new BaseQueryModelOptionsGeneration({ outputPath }),
+    new PrismaVaultRepositoryGeneration({ outputPath }),
+  ]
+
+  const fileExportMap = generators.reduce((fileManifest, generator) => {
+    const filePath = generator.generate().at(0)
+    if (!filePath) {
+      throw new Error("File path not returned from generate")
+    }
+    return {
+      ...fileManifest,
+      [filePath]: {
+        exportConstants: generator.exportConstants,
+        exportAsTypes: generator.exportAsTypes,
+      },
+    }
+  }, {})
+
+  const indexGeneration = new IndexGeneration({ outputPath, fileExportMap })
+  indexGeneration.generate()
+}
+
+function resolveOutputPath(output: EnvValue | null) {
+  if (!output?.value) {
     throw new Error("No output was specified for prisma-vault")
   }
-  if (typeof options.generator?.output?.value === "string") {
-    outputFilePath = options.generator.output.value
+  if (typeof output?.value === "string") {
+    return output.value
   } else {
-    outputFilePath = parseEnvValue(options.generator.output)
+    return parseEnvValue(output)
   }
-  fs.mkdirSync(outputFilePath, { recursive: true })
-  fs.writeFileSync(join(outputFilePath, "BaseQueryModelOptions.ts"), interfaceFileContents)
 }
 
 function resolveConfiguredImportPath(generator: GeneratorConfig, clientGenerator: GeneratorConfig) {

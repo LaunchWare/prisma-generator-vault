@@ -96,7 +96,7 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
     cursor?: ModelOptions["WhereUniqueInput"]
     include?: ModelOptions["IncludeInput"]
     select?: ModelOptions["SelectInput"]
-  } ): Promise<boolean> {
+  }): Promise<boolean> {
     const result =
       (await this.model
         .findMany({ orderBy, where, take: 1, skip: 1, cursor, include, select })
@@ -104,36 +104,23 @@ export abstract class BaseRepository<ModelOptions extends AbstractQueryModelOpti
     return result && result.length > 0
   }
 
-  async create(
-    args: ModelOptions["CreateInput"]
-  ): Promise<ModelOptions["CreateResult"]> {
-    return this.model
-      .create({ data: args })
-      .then((result: ModelOptions["CreateResult"]) => result)
+  async create(args: ModelOptions["CreateInput"]): Promise<ModelOptions["CreateResult"]> {
+    return this.model.create({ data: args }).then((result: ModelOptions["CreateResult"]) => result)
   }
 
   async deleteById(id: IdType) {
-    return this.model
-      .delete({ where: { id } })
-      .then((result: ModelOptions["DeleteResult"]) => result)
+    return this.model.delete({ where: { id } }).then((result: ModelOptions["DeleteResult"]) => result)
   }
 
-  async updateById(
-    id: IdType,
-    data: Omit<ModelOptions["UpdateInput"], "id">
-  ): Promise<ModelOptions["UpdateResult"]> {
-    return this.model
-      .update({ where: { id: id }, data })
-      .then((result: ModelOptions["UpdateResult"]) => result)
+  async updateById(id: IdType, data: Omit<ModelOptions["UpdateInput"], "id">): Promise<ModelOptions["UpdateResult"]> {
+    return this.model.update({ where: { id: id }, data }).then((result: ModelOptions["UpdateResult"]) => result)
   }
 
   async upsert(
     where: ModelOptions["WhereInput"],
     update: ModelOptions["UpdateInput"],
-    create: ModelOptions["CreateInput"],
+    create: ModelOptions["CreateInput"]
   ): Promise<ModelOptions["UpsertResult"]> {
-    return this.model
-      .upsert({ where, update, create })
-      .then((result: ModelOptions["UpsertResult"]) => result)
+    return this.model.upsert({ where, update, create }).then((result: ModelOptions["UpsertResult"]) => result)
   }
 }

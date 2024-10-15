@@ -1,12 +1,12 @@
-import { BaseRepository } from "../BaseRepository.js"
-import { BaseQueryModelOptions } from "../../../test/prisma/prisma-vault/BaseQueryModelOptions.js"
 import { Prisma, PrismaClient } from "@prisma/client"
+import { BaseQueryModelOptions, PrismaVaultRepository } from "../../../test/prisma/prisma-vault/index.js"
 
 type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>
-class UserRepository extends BaseRepository<UserQueryModelOptions> {}
+
+class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
 
 const prisma = new PrismaClient()
-const userRepository = new UserRepository(prisma.user)
+const userRepository = new UserRepository(prisma.user, prisma)
 
 const createUser = async () => {
   return await userRepository.create({
@@ -15,7 +15,7 @@ const createUser = async () => {
     email: "john@example.com",
   })
 }
-describe("Base Repository", () => {
+describe("PrismaVault Repository", () => {
   beforeEach(async () => {
     await prisma.$queryRaw`DELETE FROM User;`
   })
@@ -76,7 +76,7 @@ describe("Base Repository", () => {
 
     const constrainedSet = await userRepository.findMany({ take: 2 })
     expect(constrainedSet.nodes.length).toEqual(2)
-    expect(constrainedSet.pageInfo?.endCursor[0].value).toEqual(secondUser.id)
+    expect(constrainedSet.pageInfo?.endCursor?.at(0)?.value).toEqual(secondUser.id)
   })
 
   it("upserts updates", async () => {

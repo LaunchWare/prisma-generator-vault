@@ -1,4 +1,5 @@
-import type { AbstractQueryModelOptions } from "prisma-vault"
+import type { AbstractQueryModelOptions } from "prisma-generator-vault"
+import type { Prisma } from "./PrismaClientForVault.js"
 
 export interface BaseQueryModelOptions<TQueryModel> extends AbstractQueryModelOptions {
   QueryModel: TQueryModel
@@ -26,4 +27,5 @@ export interface BaseQueryModelOptions<TQueryModel> extends AbstractQueryModelOp
     "update"
   >
   DeleteResult: Prisma.Result<TQueryModel, { where: Prisma.Args<TQueryModel, "delete">["where"] }, "delete">
+  UpsertResult: Prisma.Result<TQueryModel, Pick<Prisma.Args<TQueryModel, "upsert">, "where" | "create" | "update">, "upsert">
 }

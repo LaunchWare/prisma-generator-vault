@@ -1,6 +1,6 @@
 export { BaseRepository } from "./prisma-generator-vault/BaseRepository.js"
 import { generatorHandler } from "./prisma-generator-vault/generator/GeneratorHelpers.js"
-import { generate } from "./prisma-generator-vault/generator/PrismaQueryModelOptionsGenerator.js"
+import { generate } from "./prisma-generator-vault/generator/PrismaVaultGenerator.js"
 
 export type { AbstractQueryModelOptions } from "./prisma-generator-vault/AbstractQueryModelOptions.js"
 export type { HasManyResult } from "./prisma-generator-vault/HasManyResult.js"

@@ -1,109 +1,80 @@
 # PrismaVault
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+An implementation of the repository pattern for Prisma
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Why?
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+We like all of our database logic centralized. Prisma encourages spreading database logic throughout the application. This library encourages centralizaing your database operations.
 
-## Generate a library
+While we expose an abstract query model, this implementation intentionally exposes some of prisma's API at the repository layer. Should you someday want to migrate off of prisma, you could theoretically create a new class that adheres to the `BaseRepository` contract, but that is not a primary motivator.
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
-```
+The library provides a baseline of basic CRUD operations common to all database models, but the classes that inherit off of `PrismaVaultRepository` are intended to be a starting point for all of your database operations. You should be liberal with creating new instance methods in your children of `PrismaVaultRepository`.
 
-## Run tasks
-
-To build the library use:
-
-```sh
-npx nx build pkg1
-```
-
-To run any task with Nx use:
-
-```sh
-npx nx <target> <project-name>
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
+## Installing
 
 ```
-npx nx release
+pnpm add prisma-generator-vault
 ```
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+## Configuring
 
-[Learn more about Nx release &raquo;](hhttps://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Add the following your prisma schema:
 
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+```
+generator prismaVault {
+  provider = "node prisma-generator-vault"
+}
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+You can optionally provide the following:
 
-```sh
-npx nx sync:check
+- **output** - the directory where you want `prisma-generator-vault` artifacts to be generated into. For now, this generates a set of files that simplifies creating new prisma-based repositories.
+- **importPath** - if you generate your prisma client into a nondefault location, you can adjust the import path here to be something different from `@prisma/client`.
+
+## Generate
+
+```
+pnpm prisma generate
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+This will generate the required artifacts for `prisma-generator-vault` to improve it's usability.
 
-## Set up CI!
+## Creating Your First Repository
 
-### Step 1
+```typescript
+import { PrismaVaultRepository } from "prisma-generator-vault"
+// import this file according to where your prisma schema and supporting files are generated
+import { BaseQueryModelOptions } from "./prisma/prisma-vault/BaseQueryModelOptions.js"
+import { Prisma, PrismaClient } from "@prisma/client"
 
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>
+class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+## Using Your Repository
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+`prisma-generator-vault` provides coherent `findById`, `findFirst`, `findMany`, `update`, `create`, `upsert`, and `deleteById` methods to manipulate data in a specific table.
 
-### Step 2
+```typescript
+import { PrismaClient } from "@prisma/client"
 
-Use the following command to configure a CI workflow for your workspace:
+type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>
+class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
 
-```sh
-npx nx g ci-workflow
+const prisma = new PrismaClient()
+
+const userRepository = new UserRepository(prisma.user)
+const user = await userRepository.create({
+  firstName: "John",
+  lastName: "Smith",
+  email: "john@example.com",
+})
+const foundUser = await userRepository.findById({ id: user.id })
+
+const updatedUser = await userRepository.updateById(foundUser.id, { email: "john.smith@example.com" })
+
+const deletedUser = await userRepository.deleteById(updatedUser.id)
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+You're strongly encouraged to implement new methods for more complex and transactional database operations.
 
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
