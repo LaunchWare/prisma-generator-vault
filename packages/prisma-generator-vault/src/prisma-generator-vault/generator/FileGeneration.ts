@@ -19,7 +19,7 @@ export abstract class FileGeneration {
   protected writeFile(contents: string) {
     const filePath = join(this.outputPath, this.fileName)
     mkdirSync(this.outputPath, { recursive: true })
-    writeFileSync(filePath, contents)
+    writeFileSync(filePath, contents, { flag: "w" })
     return filePath
   }
 }

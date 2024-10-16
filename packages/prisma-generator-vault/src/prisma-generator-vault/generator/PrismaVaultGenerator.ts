@@ -5,7 +5,7 @@ import { EnvValue } from "@prisma/generator-helper"
 import { BaseQueryModelOptionsGeneration } from "./BaseQueryModelGeneration.js"
 import { PrismaVaultRepositoryGeneration } from "./PrismaVaultRepositoryGeneration.js"
 import { IndexGeneration } from "./IndexGeneration.js"
-import { rmSync } from "fs"
+import { existsSync, rmSync } from "fs"
 
 const targetProvider = "prisma-client-js"
 
@@ -16,7 +16,9 @@ export async function generate(options: GeneratorOptions) {
   }
   const importPath = resolveConfiguredImportPath(options.generator, clientGenerator)
   const outputPath = resolveOutputPath(options.generator?.output)
-  rmSync(outputPath, { recursive: true })
+  if (existsSync(outputPath)) {
+    rmSync(outputPath, { recursive: true })
+  }
   const generators = [
     new PrismaClientForVaultGeneration({ outputPath, importPath }),
     new BaseQueryModelOptionsGeneration({ outputPath }),

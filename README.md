@@ -59,8 +59,10 @@ class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
 import { PrismaClient } from "@prisma/client"
 
 type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>
-class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
+export class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
+```
 
+```
 const prisma = new PrismaClient()
 
 const userRepository = new UserRepository(prisma.user)

@@ -1,3 +1,19 @@
 {
-  "extends": ["../../.eslintrc.json", "@launchware/eslint-config-node"]
+  "extends": ["../../.eslintrc.json", "@launchware/eslint-config-node"],
+  "settings": {
+    "files": ["**/*.{ts}"],
+    "import/resolver": {
+      "typescript": {
+        "project": "./tsconfig.test.json"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "files": ["test/**/*.{ts}", "**/*.test.{ts}"],
+      "parserOptions": {
+        "project": "./tsconfig.test.json"
+      }
+    }
+  ]
 }

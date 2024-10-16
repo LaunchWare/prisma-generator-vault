@@ -10,14 +10,15 @@ export abstract class PrismaVaultRepository<TBaseModelOptions extends AbstractQu
     this.client = client
   }
 
-  protected async $transaction(args: PrismaPromise<any>[], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): Promise<any>;
+  protected async $transaction(args: PrismaPromise<unknown>[], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): Promise<unknown>;
 
   protected async $transaction<R>(
     fn: (prisma: PrismaClient) => Promise<R>,
     options?: { maxWait?: number; timeout?: number; isolationLevel?: Prisma.TransactionIsolationLevel }
   ): Promise<R>;
 
-  protected async $transaction(arg1: any, arg2?: any): Promise<any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected async $transaction(arg1: any, arg2?: any): Promise<unknown> {
     if (Array.isArray(arg1)) {
       return this.client.$transaction(arg1, arg2);
     } else if (typeof arg1 === 'function') {
