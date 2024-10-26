@@ -15,7 +15,7 @@
         "outputPath": "{workspaceRoot}/dist/packages/prisma-generator-vault",
         "compiler": "tsc",
         "format": ["cjs"],
-        "assets": [{ "input": ".", "output": ".", "glob": "**/*.*.template" }]
+        "assets": [{ "input": ".", "output": ".", "glob": "**/*.*.hbs" }]
       }
     }
   }
