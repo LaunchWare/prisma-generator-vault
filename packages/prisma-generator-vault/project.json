@@ -17,6 +17,22 @@
         "format": ["cjs"],
         "assets": [{ "input": ".", "output": ".", "glob": "**/*.*.hbs" }]
       }
+    },
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm prisma generate --schema test/prisma/prisma.test.schema",
+        "forwardAllArgs": true,
+        "cwd": "{projectRoot}"
+      }
+    },
+    "prisma-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm prisma migrate dev --schema test/prisma/prisma.test.schema",
+        "forwardAllArgs": true,
+        "cwd": "{projectRoot}"
+      }
     }
   }
 }
