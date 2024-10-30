@@ -2,33 +2,37 @@ import { configurationSchema } from "./Configuration.js"
 import { GeneratorConfig, GeneratorOptions, parseEnvValue } from "./GeneratorHelpers.js"
 import { PrismaClientForVaultGeneration } from "./PrismaClientForVaultGeneration.js"
 import { EnvValue } from "@prisma/generator-helper"
-import { BaseQueryModelOptionsGeneration } from "./BaseQueryModelGeneration.js"
-import { PrismaVaultRepositoryGeneration } from "./PrismaVaultRepositoryGeneration.js"
 import { IndexGeneration } from "./IndexGeneration.js"
 import { existsSync, rmSync } from "fs"
+import { IPrismaDelegateFileGeneration } from "./IPrismaDelegateGeneration.js"
+import { PrismaProxyGeneration } from "./PrismaProxyGeneration.js"
+import { EncapsulatedPrismaRepositoryGeneration } from "./EncapsulatedPrismaRepositoryGeneration.js"
+import { ExposedPrismaRepositoryGeneration } from "./ExposedPrismaRepository.js"
 
 const targetProvider = "prisma-client-js"
 
-export async function generate(options: GeneratorOptions) {
+export async function generate(options: GeneratorOptions): Promise<string[]> {
   const clientGenerator = findClientGenerator(options.otherGenerators)
   if (!clientGenerator) {
     throw new Error(`${targetProvider} is a required generator for this library`)
   }
   const importPath = resolveConfiguredImportPath(options.generator, clientGenerator)
-  const outputPath = resolveOutputPath(options.generator?.output)
+  const outputPath = resolveOutputPath(options.generator.output)
   if (existsSync(outputPath)) {
     rmSync(outputPath, { recursive: true })
   }
   const generators = [
     new PrismaClientForVaultGeneration({ outputPath, importPath }),
-    new BaseQueryModelOptionsGeneration({ outputPath }),
-    new PrismaVaultRepositoryGeneration({ outputPath }),
+    new IPrismaDelegateFileGeneration({ outputPath }),
+    new PrismaProxyGeneration({ outputPath }),
+    new EncapsulatedPrismaRepositoryGeneration({ outputPath }),
+    new ExposedPrismaRepositoryGeneration({ outputPath }),
   ]
 
   const fileExportMap = generators.reduce((fileManifest, generator) => {
     const filePath = generator.generate().at(0)
     if (!filePath) {
-      throw new Error("File path not returned from generate")
+      return new Error("File path not returned from generate")
     }
     return {
       ...fileManifest,
@@ -40,14 +44,14 @@ export async function generate(options: GeneratorOptions) {
   }, {})
 
   const indexGeneration = new IndexGeneration({ outputPath, fileExportMap })
-  indexGeneration.generate()
+  return Promise.resolve([...Object.keys(fileExportMap), ...indexGeneration.generate()])
 }
 
 function resolveOutputPath(output: EnvValue | null) {
   if (!output?.value) {
     throw new Error("No output was specified for prisma-vault")
   }
-  if (typeof output?.value === "string") {
+  if (typeof output.value === "string") {
     return output.value
   } else {
     return parseEnvValue(output)

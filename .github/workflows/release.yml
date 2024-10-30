@@ -1,0 +1,66 @@
+name: Build
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install asdf & tools
+        uses: asdf-vm/actions/install@v3
+      - name: asdf cache
+        id: asdf-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.asdf/
+          key: ${{ runner.os }}-${{ hashFiles('**/.tool-versions') }}
+      - name: Get pnpm store directory
+        id: npm_cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        if: steps.npm_cache.outputs.cache-hit != 'true'
+      - uses: nrwl/nx-set-shas@v3
+        with:
+          main-branch-name: main
+      - name: Run build
+        run: pnpm nx build prisma-generator-vault
+      - name: Migrate
+        run: cd packages/prisma-generator-vault && pnpm prisma migrate dev --schema test/prisma/prisma.test.schema
+      - name: Lint
+        run: pnpm nx lint prisma-generator-vault
+      - name: Run Test Suite
+        run: pnpm nx test prisma-generator-vault
+      - name: Get version from package.json
+        id: get_version
+        run: echo "VERSION=$(node -p 'require("./package.json").version')" >> $GITHUB_ENV
+        working-directory: "./dist/packages/prisma-generator-vault"
+      - name: Create a Release
+        uses: elgohr/Github-Release-Action@v5
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          title: v${{ env.VERSION }}
+          tag: v${{ env.VERSION }}
+          workdir: "./dist/packages/prisma-generator-vault"
+      - run: pnpm publish --access public
+        working-directory: "./dist/packages/prisma-generator-vault"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

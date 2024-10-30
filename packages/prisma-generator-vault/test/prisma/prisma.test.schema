@@ -9,7 +9,7 @@ generator client {
 }
 
 generator prismaVault {
-  provider = "node --enable-source-maps ../../dist/packages/prisma-generator-vault"
+  provider = "node ../../dist/packages/prisma-generator-vault/bin.cjs.js"
 }
 
 model User {

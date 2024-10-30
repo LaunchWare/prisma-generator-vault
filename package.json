@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {},
-  "private": true,
+  "private": false,
   "devDependencies": {
     "@eslint/js": "^9.8.0",
     "@nx/eslint": "20.0.0",

@@ -11,10 +11,30 @@
       "options": {
         "tsConfig": "{projectRoot}/tsconfig.lib.json",
         "main": "{projectRoot}/src/index.ts",
+        "additionalEntryPoints": ["{projectRoot}/src/bin.ts"],
         "outputPath": "{workspaceRoot}/dist/packages/prisma-generator-vault",
-        "compiler": "swc",
+        "compiler": "tsc",
         "format": ["cjs"],
-        "assets": [{ "input": ".", "output": ".", "glob": "**/*.*.template" }]
+        "assets": [
+          { "input": ".", "output": ".", "glob": "**/*.*.hbs" },
+          {"glob": "README.md", "input": ".", "output": "." }
+        ]
+      }
+    },
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm prisma generate --schema test/prisma/prisma.test.schema",
+        "forwardAllArgs": true,
+        "cwd": "{projectRoot}"
+      }
+    },
+    "prisma-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm prisma migrate dev --schema test/prisma/prisma.test.schema",
+        "forwardAllArgs": true,
+        "cwd": "{projectRoot}"
       }
     }
   }
