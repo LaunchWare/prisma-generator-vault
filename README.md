@@ -1,82 +1,101 @@
 # PrismaVault
 
-An implementation of the repository pattern for Prisma
+An implementation of the repository pattern for Prisma.
 
-## Why?
+## Why PrismaVault?
 
-We like all of our database logic centralized. Prisma encourages spreading database logic throughout the application. This library encourages centralizaing your database operations.
+PrismaVault aims to address a common issue in larger codebases: the tendency of database logic to become scattered throughout the application. Prisma’s API, while powerful, can lead to data access being spread across multiple layers and components, increasing the risk of tight coupling between your service layer and data layer.
 
-While we expose an abstract query model, this implementation intentionally exposes some of prisma's API at the repository layer. Should you someday want to migrate off of prisma, you could theoretically create a new class that adheres to the `BaseRepository` contract, but that is not a primary motivator.
+PrismaVault takes a different approach by centralizing database operations within well-defined repository classes, encouraging a clean separation of concerns. By encapsulating data logic, PrismaVault reduces the direct dependency of your application’s core logic on Prisma, instead favoring reusable repository methods that interact with Prisma under the hood.
 
-The library provides a baseline of basic CRUD operations common to all database models, but the classes that inherit off of `PrismaVaultRepository` are intended to be a starting point for all of your database operations. You should be liberal with creating new instance methods in your children of `PrismaVaultRepository`.
+## Philosophy
 
-## Installing
+The philosophy behind PrismaVault is to reduce coupling between the data and service layers by:
 
+0. **Obfuscating Direct Prisma Calls**: By abstracting the Prisma API into protected or exposed repository methods, you control the specific data operations each service layer can perform. This layer of abstraction limits the direct exposure to Prisma, making it easier to refactor the data layer without affecting service logic.
+1. **Returning Translated Entities**: Repository methods return “translated” entities or specific data transfer objects (DTOs), rather than raw Prisma records. This encourages the development of standardized interfaces between the data and service layers, further decoupling them and creating a flexible application architecture.
+2. **Encouraging Centralized Data Access**: Instead of scattering database logic across the app, PrismaVault allows you to consolidate database operations in repository classes. This reduces repetition, minimizes the risk of inconsistent data access patterns, and centralizes optimizations or transactional logic.
+
+## Overview of Generated Classes
+
+PrismaVault generates two types of repository base classes you can extend, each with a different philosophy of encapsulation:
+
+### Recommended: `EncapsulatedPrismaRepository`
+
+This abstract class provides **protected methods** for interacting with Prisma, designed to prevent direct access to the Prisma API outside of the repository. This encapsulated approach promotes clear and focused repository methods, where only high-level, well-defined operations are exposed to the service layer.
+
+```typescript
+import { Prisma, PrismaClient } from "@prisma/client";
+import { EncapsulatedPrismaRepository } from "../../../test/prisma/prisma-vault";
+
+class UserRepository extends EncapsulatedPrismaRepository<Prisma.UserDelegate> {
+  async findById(id: string) {
+    return this.findUnique({ where: { id } });
+  }
+}
+
+const client = new PrismaClient();
+const repository = new UserRepository(client.user, client);
+const user = await repository.findById("123453");
+console.log(user.id);
 ```
+
+### `ExposedPrismaRepository`
+
+This abstract class exposes the Prisma API through **public methods**, allowing more direct access to Prisma functionality. While this provides flexibility, it is considered a "leaky" abstraction, as it exposes the full Prisma API surface area. This approach may be suitable for simpler applications where complete encapsulation is not required but centralized data logic is still desired.
+
+```typescript
+import { Prisma, PrismaClient } from "@prisma/client";
+import { ExposedPrismaRepository } from "../../../test/prisma/prisma-vault";
+
+class UserRepository extends ExposedPrismaRepository<Prisma.UserDelegate> {}
+
+const client = new PrismaClient();
+const repository = new UserRepository(client.user, client);
+const user = await repository.findUnique({ where: { id: "123453" } });
+console.log(user.id);
+```
+
+Both approaches encourage the implementation of high-level, centralized methods for complex and transactional operations, keeping database logic organized and consistent.
+
+## Installation
+
+To install PrismaVault, use:
+
+```bash
 pnpm add prisma-generator-vault
 ```
 
-## Configuring
+## Configuration
 
-Add the following your prisma schema:
+To configure PrismaVault, add the following to your Prisma schema file:
 
-```
+```prisma
 generator prismaVault {
-  provider = "node prisma-generator-vault"
+  provider = "prisma-generator-vault"
 }
 ```
 
-You can optionally provide the following:
+Optional configuration options include:
 
-- **output** - the directory where you want `prisma-generator-vault` artifacts to be generated into. For now, this generates a set of files that simplifies creating new prisma-based repositories.
-- **importPath** - if you generate your prisma client into a nondefault location, you can adjust the import path here to be something different from `@prisma/client`.
+- **`output`**: Specifies the directory where PrismaVault will generate artifacts, including base repository classes. By default, files are generated into a directory within the `prisma` folder.
+- **`importPath`**: If your Prisma client is generated in a non-default location, adjust this path to point to the correct client location instead of `@prisma/client`.
 
-## Generate
+## Generate Artifacts
 
-```
+Run the following command to generate the required artifacts for PrismaVault:
+
+```bash
 pnpm prisma generate
 ```
 
-This will generate the required artifacts for `prisma-generator-vault` to improve it's usability.
+This will generate the necessary files to simplify the creation of new Prisma-based repositories and provide an encapsulated data access layer.
 
-## Creating Your First Repository
+## Benefits of PrismaVault
 
-```typescript
-import { PrismaVaultRepository } from "prisma-generator-vault"
-// import this file according to where your prisma schema and supporting files are generated
-import { BaseQueryModelOptions } from "./prisma/prisma-vault/BaseQueryModelOptions.js"
-import { Prisma, PrismaClient } from "@prisma/client"
+0. **Reduced Coupling**: By centralizing database access logic, PrismaVault minimizes dependencies between service and data layers, enhancing the flexibility and maintainability of your application.
+1. **Easier Refactoring**: Abstracted repository classes make it easier to modify data access logic or migrate databases without requiring changes across multiple application components.
+2. **Centralized Data Logic**: Consistently implemented repository methods ensure that complex logic, such as transactions or data transformations, is handled in one place, reducing redundancy and the risk of errors.
 
-type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>
-class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
-```
-
-## Using Your Repository
-
-`prisma-generator-vault` provides coherent `findById`, `findFirst`, `findMany`, `update`, `create`, `upsert`, and `deleteById` methods to manipulate data in a specific table.
-
-```typescript
-import { PrismaClient } from "@prisma/client"
-
-type UserQueryModelOptions = BaseQueryModelOptions<Prisma.UserDelegate>
-export class UserRepository extends PrismaVaultRepository<UserQueryModelOptions> {}
-```
-
-```
-const prisma = new PrismaClient()
-
-const userRepository = new UserRepository(prisma.user)
-const user = await userRepository.create({
-  firstName: "John",
-  lastName: "Smith",
-  email: "john@example.com",
-})
-const foundUser = await userRepository.findById({ id: user.id })
-
-const updatedUser = await userRepository.updateById(foundUser.id, { email: "john.smith@example.com" })
-
-const deletedUser = await userRepository.deleteById(updatedUser.id)
-```
-
-You're strongly encouraged to implement new methods for more complex and transactional database operations.
+With PrismaVault, you gain the ability to control data interactions in a structured and scalable way, making your codebase more resilient and adaptable.
 
