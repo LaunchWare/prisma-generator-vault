@@ -8,6 +8,7 @@ class UserPrismaProxy extends PrismaProxy<Prisma.UserDelegate> {}
 describe("prisma proxy", () => {
   let client: PrismaClient
   let proxy: UserPrismaProxy
+
   beforeEach(async () => {
     client = new PrismaClient()
     proxy = new UserPrismaProxy(client.user, client)
