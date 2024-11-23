@@ -5,7 +5,7 @@ import { PrismaProxy } from "./PrismaProxy"
 export abstract class EncapsulatedPrismaRepository<TModel extends IPrismaDelegate<TModel>> {
   private prismaProxy: PrismaProxy<TModel>
 
-  constructor(model: TModel, prismaClient: PrismaClient) {
+  constructor(model: TModel, protected prismaClient: PrismaClient) {
     this.prismaProxy = new PrismaProxy<TModel>(model, prismaClient)
   }
 
