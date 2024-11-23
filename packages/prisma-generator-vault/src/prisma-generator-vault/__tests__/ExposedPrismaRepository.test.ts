@@ -3,12 +3,18 @@ import { ExposedPrismaRepository } from "../../../test/prisma/prisma-vault"
 
 class UserPrismaProxy extends ExposedPrismaRepository<Prisma.UserDelegate> {}
 
-const client = new PrismaClient()
-const proxy = new UserPrismaProxy(client.user, client)
-
 describe("prisma proxy", () => {
+  let client: PrismaClient
+  let proxy: UserPrismaProxy
+
   beforeEach(async () => {
+    client = new PrismaClient()
+    proxy = new UserPrismaProxy(client.user, client)
     await proxy.deleteMany({})
+  })
+
+  afterAll(async () => {
+    await client.$disconnect()
   })
 
   it("exposes findUnique", async () => {
