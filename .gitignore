@@ -43,3 +43,5 @@ Thumbs.db
 
 /packages/**/test/prisma/db/**/*.*
 /packages/**/test/prisma/prisma-vault/**/*.*
+
+vite.config.*.timestamp*
