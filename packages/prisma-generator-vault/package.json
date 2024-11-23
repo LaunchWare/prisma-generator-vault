@@ -1,6 +1,6 @@
 {
   "name": "prisma-generator-vault",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "bin": {
     "prisma-generator-vault": "bin.cjs.js"
   },
