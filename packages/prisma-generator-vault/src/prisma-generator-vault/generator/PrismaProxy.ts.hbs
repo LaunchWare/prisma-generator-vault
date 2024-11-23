@@ -1,5 +1,5 @@
-import { Prisma, PrismaClient, PrismaPromise } from "./PrismaClientForVault.js"
 import { IPrismaDelegate } from "./IPrismaDelegate.js"
+import { Prisma, PrismaClient, PrismaPromise } from "./PrismaClientForVault.js"
 
 export class PrismaProxy<TModel extends IPrismaDelegate<TModel>> {
   constructor(private model: TModel, private prismaClient: PrismaClient) {}
