@@ -18,7 +18,8 @@
         "format": ["cjs"],
         "assets": [
           { "input": ".", "output": ".", "glob": "**/*.*.hbs" },
-          {"glob": "README.md", "input": ".", "output": "." }
+          {"glob": "README.md", "input": ".", "output": "." },
+          {"glob": "package.json", "input": "{projectRoot}", "output": "." }
         ]
       }
     },
