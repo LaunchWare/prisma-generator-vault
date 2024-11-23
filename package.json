@@ -5,7 +5,7 @@
   "scripts": {},
   "private": false,
   "devDependencies": {
-    "@eslint/js": "^9.8.0",
+    "@eslint/js": "^9.15.0",
     "@nx/eslint": "20.1.3",
     "@nx/eslint-plugin": "20.1.3",
     "@nx/js": "20.1.3",
@@ -23,7 +23,7 @@
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.3.1",
     "core-js": "^3.36.1",
-    "eslint": "^9.8.0",
+    "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.0.0",
     "jsdom": "~22.1.0",
     "nx": "20.1.3",
@@ -31,7 +31,7 @@
     "rollup": "^4.24.0",
     "tslib": "^2.3.0",
     "typescript": "~5.5.2",
-    "typescript-eslint": "^8.0.0",
+    "typescript-eslint": "^8.15.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "~3.8.1",
     "vitest": "^1.3.1"
