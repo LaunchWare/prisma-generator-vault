@@ -4,6 +4,8 @@ on:
 
 jobs:
   release:
+    env:
+      NX_SOCKET_DIR: /tmp/nx-tmp
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
