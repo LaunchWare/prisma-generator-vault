@@ -7,11 +7,11 @@
   "main": "index.cjs.js",
   "types": "index.cjs.d.js",
   "dependencies": {
-    "@prisma/client": "5.x",
-    "@prisma/generator-helper": "5.x",
-    "@prisma/internals": "^5.20.0",
+    "@prisma/client": "6.x",
+    "@prisma/generator-helper": "6.x",
+    "@prisma/internals": "^6.0",
     "handlebars": "^4.7.8",
-    "prisma": "5.x",
+    "prisma": "6.x",
     "zod": "^3.23.8"
   },
   "private": false,
