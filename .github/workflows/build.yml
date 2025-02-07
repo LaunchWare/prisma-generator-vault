@@ -7,24 +7,17 @@ on:
 
 jobs:
   build:
+    env:
+      NX_SOCKET_DIR: /tmp/nx-tmp
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: jdx/mise-action@v2
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install asdf & tools
-        uses: asdf-vm/actions/install@v3.0.2
-      - name: asdf cache
-        id: asdf-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf/
-          key: ${{ runner.os }}-${{ hashFiles('**/.tool-versions') }}
+          version: 2024.12.14 # [default: latest] mise version to install
+          install: true # [default: true] run `mise install`
+          cache: true # [default: true] cache mise using GitHub's cache
+          experimental: true # [default: false] enable experimental features
       - name: Get pnpm store directory
         id: npm_cache
         shell: bash
